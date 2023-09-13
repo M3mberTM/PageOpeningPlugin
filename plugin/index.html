@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="index.js"></script>
+    <script src="entryPoints.js"></script>
+    <script src="toggles.js"></script>
+</head>
+<style>
+    .paddingClass {
+        color: white;
+        padding: 0 16px;
+    }
+
+    .hidden {
+        opacity: 0;
+    }
+
+    .divider {
+        margin: 15px 0;
+    }
+
+    #exportClose {
+        margin-top: -10px;
+    }
+
+    #exportContent {
+        margin-top: -10px;
+    }
+
+    .radioTextfield {
+        margin-left: 5px;
+    }
+</style>
+<body>
+<!-- First panel content-->
+<div id="import" class="paddingClass">
+    <sp-heading size="S">Import</sp-heading>
+    <sp-body size="S" id="startFilePath">File path</sp-body>
+    <sp-button id="importFile" variant="primary">Choose Start File</sp-button>
+    <sp-divider size="large" class="divider"></sp-divider>
+    <sp-checkbox id="exportClose"> Export before closing</sp-checkbox>
+    <div class="hidden" id="exportContent">
+        <sp-heading size="S">Export Folder</sp-heading>
+        <sp-body size="S" id="exportFolderPath">Folder path</sp-body>
+        <sp-button id="btnExport" variant="secondary" disabled>Choose Export Folder</sp-button>
+    </div>
+</div>
+
+
+<!-- Second panel content for the plugin-->
+<div id="export" class="paddingClass">
+    <sp-heading size="S">Export naming</sp-heading>
+    <sp-textfield placeholder="God of Thunder: Rise to Fame" size="S" id="seriesName">
+        <sp-label isrequired="true" slot="label">Series Name:</sp-label>
+    </sp-textfield>
+    <sp-textfield placeholder="4" type="number" size="S" quiet id="volumeNum">
+        <sp-label slot="label">Volume Num:</sp-label>
+    </sp-textfield>
+    <sp-textfield placeholder="6" type="number" size="S" id="chapterNum">
+        <sp-label isrequired="true" slot="label">Chapter Num:</sp-label>
+    </sp-textfield>
+    <sp-dropdown placeholder="Select file type" size="m">
+        <sp-menu slot="options">
+            <sp-menu-item>.psd</sp-menu-item>
+            <sp-menu-item>.png</sp-menu-item>
+            <sp-menu-item>.jpg</sp-menu-item>
+        </sp-menu>
+    </sp-dropdown>
+    <sp-divider size="large" class="divider"></sp-divider>
+    <sp-checkbox id="leadingZeros">Input leading zeros</sp-checkbox>
+    <sp-radio-group id="leadingZerosGroup" class="hidden">
+        <sp-checkbox id="volumeLeadingRadio">to Volume</sp-checkbox>
+        <sp-textfield placeholder="Put number of leading zeroes" type="number" id="volumeLeading"
+                      class="radioTextfield hidden"></sp-textfield>
+        <sp-checkbox id="chapterLeadingGroup">to Chapter</sp-checkbox>
+        <sp-textfield placeholder="Put number of leading zeroes" type="number" id="chapterLeading"
+                      class="radioTextfield hidden"></sp-textfield>
+        <sp-checkbox id="pageLeadingGroup">to Page Num</sp-checkbox>
+        <sp-textfield placeholder="Put number of leading zeroes" type="number" id="pageLeading"
+                      class="radioTextfield hidden"></sp-textfield>
+    </sp-radio-group>
+</div>
+
+<!-- Third panel content for the plugin-->
+<div id="opening" class="paddingClass">
+    <sp-heading size="S">Open pages</sp-heading>
+    <sp-body size="S" id="errorMessages"></sp-body>
+    <sp-button id="previousFile">Previous</sp-button>
+    <sp-button id="nextFile">Next</sp-button>
+</div>
+
+</body>
+</html>
