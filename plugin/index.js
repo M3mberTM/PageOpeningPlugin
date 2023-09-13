@@ -5,10 +5,12 @@ const textTrimFromBack = 30;
 let startFilePath = "";
 let currentFile = "";
 
+
+
 async function selectFolder() {
     console.log("Selecting a folder")
     const app = window.require("photoshop").app;
-    
+
     const fslocal = window.require("uxp").storage.localFileSystem;
     const folder = await fslocal.getFolder();
     const token = await fslocal.createPersistentToken(folder);
@@ -54,17 +56,16 @@ async function selectFile() {
 
 }
 
-async function nextFile() {
+async function nextFile(reverse) {
     console.log("next file");
     const currFileName = path.basename(currentFile); //gets the name of the file without folders
     const extension = currFileName.substring(currFileName.indexOf("."), currFileName.length);
-    console.log(extension);
     const currFileNoExt = currFileName.substring(0, currFileName.indexOf(".")); //removes the extension
     const matches = currFileNoExt.match("\\d+"); //gets all numbers from the file name
     let pageNum = matches[matches.length - 1]; //gets the page numbers
-    const hasLeadingZeroes = pageNum.charAt(0) == '0'; //checks if the number starts with zeroes
+    const isLeadingZeroes = hasLeadingZeroes(pageNum); //checks if the number starts with zeroes
     let zeroesIndex = -1; //if value is -1, it doens't have leading zeroes
-    if (hasLeadingZeroes) {
+    if (isLeadingZeroes) {
         zeroesIndex = pageNum.length; //checks how long the number was with the leading zeroes
         let numStart = 1;
         while (pageNum.charAt(numStart) == '0') {
@@ -72,24 +73,37 @@ async function nextFile() {
         }
         pageNum = pageNum.substring(numStart, pageNum.length); //getting rid of leading zeroes
     }
-    let nextPage = (parseInt(pageNum) + 1).toString();
-    if (hasLeadingZeroes) {
+    let nextPage;
+    if (reverse) {
+        nextPage = (parseInt(pageNum) -1 ).toString();
+    } else {
+        nextPage = (parseInt(pageNum) + 1).toString();
+    }
+
+    if (isLeadingZeroes) {
         while (nextPage.length != zeroesIndex) {
             nextPage = "0" + nextPage;
         }
     }
     nextPage += extension;
     let nextFilePath = currentFile.replace(currFileName, nextPage);
-    //open the new file
-    console.log(nextFilePath);
-    await require('photoshop').core.executeAsModal(openFile.bind(null, nextFilePath));
-    currentFile = nextFilePath;
+    if (await fileExists(nextFilePath)) {
+        //open the new file
+        console.log(nextFilePath);
+        await require('photoshop').core.executeAsModal(openFile.bind(null, nextFilePath));
+        currentFile = nextFilePath;
+    }
+
 }
 
-async function previousFile() {
-    console.log("previous file");
+function hasLeadingZeroes (pageNumber) {
+    let hasZeroes = true;
+    hasZeroes = hasZeroes && pageNumber.charAt(0) == '0';
+    hasZeroes = hasZeroes && pageNumber.length > 1;
+    return hasZeroes;
 }
 
+//TODO exporting function
 async function exportFile() {
     const seriesName = document.getElementById("seriesName").innerHTML.split(" ");
     const volumeNum = document.getElementById("volumeNum").innerHTML;
@@ -106,7 +120,22 @@ async function exportFile() {
     return false;
 }
 
+//TODO adding leading zeroes to the exported document
 function addLeadingZeros() {
+
+}
+
+//TODO checking if the file exists before trying to open it
+async function fileExists (filePath) {
+    console.log("got here")
+    const fs = require('uxp').storage.localFileSystem;
+    try {
+    const file = await fs.getEntryWithUrl(`file:\\${filePath}`);
+    } catch (e) {
+        showAlert(e)
+        return false;
+    }
+        return true;
 
 }
 
@@ -126,9 +155,9 @@ async function runModal(command) {
         if (command == "start") {
             await require('photoshop').core.executeAsModal(selectFile);
         } else if (command == "next") {
-            await require('photoshop').core.executeAsModal(nextFile());
+            await require('photoshop').core.executeAsModal(nextFile(false));
         } else if (command == "previous") {
-            await require('photoshop').core.executeAsModal(previousFile());
+            await require('photoshop').core.executeAsModal(nextFile(true));
         } else {
             console.log("None of the commands were fulfilled")
         }
@@ -152,5 +181,5 @@ async function showAlert(message) {
 document.getElementById("btnExport").addEventListener("click", selectFolder.bind(null, false));
 document.getElementById("importFile").addEventListener("click", runModal.bind(null, "start"));
 document.getElementById("nextFile").addEventListener("click", runModal.bind(null, "next"));
-document.getElementById("previousFile").addEventListener("click", test);
+document.getElementById("previousFile").addEventListener("click", runModal.bind(null, "previous"));
 

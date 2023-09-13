@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html>
+
+<html lang="">
 <head>
     <script src="index.js"></script>
     <script src="entryPoints.js"></script>
@@ -30,6 +31,14 @@
     .radioTextfield {
         margin-left: 5px;
     }
+
+    .marginalize {
+        margin-top: 10px;
+    }
+    .stackUnderneath {
+        display: block;
+        margin-top: 10px;
+    }
 </style>
 <body>
 <!-- First panel content-->
@@ -59,7 +68,8 @@
     <sp-textfield placeholder="6" type="number" size="S" id="chapterNum">
         <sp-label isrequired="true" slot="label">Chapter Num:</sp-label>
     </sp-textfield>
-    <sp-dropdown placeholder="Select file type" size="m">
+<!--    change this to sp-picker instead as dropdown is deprecated-->
+    <sp-dropdown class = "marginalize" placeholder="Select file type" size="m">
         <sp-menu slot="options">
             <sp-menu-item>.psd</sp-menu-item>
             <sp-menu-item>.png</sp-menu-item>
@@ -84,9 +94,8 @@
 <!-- Third panel content for the plugin-->
 <div id="opening" class="paddingClass">
     <sp-heading size="S">Open pages</sp-heading>
-    <sp-body size="S" id="errorMessages"></sp-body>
-    <sp-button id="previousFile">Previous</sp-button>
-    <sp-button id="nextFile">Next</sp-button>
+    <sp-button class ="stackUnderneath" id="previousFile" size="l">Previous</sp-button>
+    <sp-button class ="stackUnderneath" id="nextFile" size="l">Next</sp-button>
 </div>
 
 </body>
