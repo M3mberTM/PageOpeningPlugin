@@ -78,7 +78,7 @@
         <sp-label slot="label">Exchange spaces for:</sp-label>
     </sp-textfield>
 <!--    change this to sp-picker instead as dropdown is deprecated-->
-    <sp-dropdown class = "marginalize" placeholder="Select file type" size="m">
+    <sp-dropdown class = "marginalize" placeholder="Select file type" size="m" id="fileDropdown">
         <sp-menu slot="options">
             <sp-menu-item>.psd</sp-menu-item>
             <sp-menu-item>.png</sp-menu-item>
@@ -111,6 +111,7 @@
     <sp-button class ="stackUnderneath" id="previousFile" size="l">Previous</sp-button>
     <sp-button class ="stackUnderneath" id="nextFile" size="l">Next</sp-button>
     <sp-button class="stackUnderneath" size="l" id="getExportName">Update page info</sp-button>
+    <sp-button class ="stackUnderneath" id="test" size="l">Test</sp-button>
     <sp-divider size="large" class="marginalize"></sp-divider>
     <sp-heading size="s">Info about the file:</sp-heading>
     <sp-label size="l" class="stack" id="pageNum">Page num:</sp-label>

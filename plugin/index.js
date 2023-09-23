@@ -16,10 +16,7 @@ async function selectFolder() {
     const token = await fslocal.createPersistentToken(folder);
 
     const folderObject = {
-        name: folder.name,
-        path: folder.nativePath,
-        token: token,
-        entry: folder,
+        name: folder.name, path: folder.nativePath, token: token, entry: folder,
     };
     const finalPath = folderObject.path;
     exportPath = finalPath;
@@ -48,10 +45,7 @@ async function selectFile() {
     await readFolder(folder); //getting all the other files from the folder
 
     const fileObject = {
-        name: file.name,
-        path: file.nativePath,
-        token: token,
-        entry: file,
+        name: file.name, path: file.nativePath, token: token, entry: file,
     };
 
     currIndex = Array.from(workFolder.keys()).indexOf(fileObject.name);
@@ -104,23 +98,28 @@ async function openNextFile(reverse) {
     console.log("next file");
 
     const app = require("photoshop").app;
-    const document = app.activeDocument;
+    const doc = app.activeDocument;
+
+    if (document.getElementById("exportClose").checked && exportPath !== "") {
+        console.log("inside selection statement");
+        await exportFile();
+    }
+
     let entry;
     if (reverse) {
         currIndex--;
+        currPageNum--;
         entry = workFolder.get(Array.from(workFolder.keys())[currIndex]);
     } else {
         currIndex++;
+        currPageNum++;
         entry = workFolder.get(Array.from(workFolder.keys())[currIndex]);
     }
 
     await require('photoshop').core.executeAsModal(openFile.bind(null, entry));
-    if (document.getElementById("exportClose").checked) {
-        await exportFile();
-    }
+    closeFile(doc);
 
-    //export file if the person wants
-    closeFile(document);
+
 }
 
 async function fileExists(filePath) {
@@ -152,7 +151,7 @@ async function openFile(entry) {
 async function pathToEntry(filePath) {
     const fs = require('uxp').storage.localFileSystem;
     try {
-        const file = await fs.getEntryWithUrl(`file:\\${filePath}`);
+        const file = await fs.getEntryWithUrl(filePath);
         return file;
     } catch (e) {
         await showAlert(e);
@@ -160,20 +159,63 @@ async function pathToEntry(filePath) {
     }
 }
 
-//TODO exporting function
+
 async function exportFile() {
-    if (document.getElementById("seriesName").value !== "" && document.getElementById("chapterNum").value !== "") {
+    console.log("Exporting!")
+    const fileType = document.getElementById("fileDropdown").selectedIndex;
+    if (document.getElementById("seriesName").value !== "" && document.getElementById("chapterNum").value !== "" && fileType !== -1) {
         const expFileName = getExportFileName();
+        const fs = require('uxp').storage.localFileSystem;
+        const expFolderEntry = await pathToEntry(exportPath);
+        switch (fileType) {
+            case 0:
+                const entry = await expFolderEntry.createFile(`${expFileName}.psd`, {overwrite: true});
+                // const entry =  await fs.createEntryWithUrl(`${exportPath}\\${expFileName}.psd`);
+                await require('photoshop').core.executeAsModal(savePSD.bind(null, entry));
+                break;
+            case 1:
+
+                await savePNG();
+                break;
+            case 2:
+
+                await saveJPG();
+                break;
+        }
     } else {
-        await showAlert("No series name/chapter number given!");
+        await showAlert("No series name/chapter number/file type given!");
     }
+}
+
+
+async function savePNG(path) {
+    const app = require('photoshop').app;
+    const document = app.activeDocument;
+
+}
+
+async function saveJPG(path) {
+    const app = require('photoshop').app;
+    const document = app.activeDocument;
+}
+
+async function savePSD(entry) {
+    console.log("Saving as psd");
+    const app = require('photoshop').app;
+    const doc = app.activeDocument;
+    try {
+        await doc.saveAs.psd(entry);
+
+    } catch (e) {
+        console.log(e);
+    }
+
 }
 
 
 function getExportFileName() {
     //The naming: Name of the Series initial Vol. number Chap Num, Page num
     //Example: SCK Vol.3 Ch.10 001
-    // In the future, add multiple formattings possible
     const seriesName = document.getElementById("seriesName").value;
     const chapterNum = parseInt(document.getElementById("chapterNum").value);
     const volumeNum = document.getElementById("volumeNum").value;
@@ -212,9 +254,6 @@ function getExportFileName() {
     return finalName;
 }
 
-function isEmpty(text) {
-    return text === "";
-}
 
 //TODO adding leading zeroes to the exported document
 function addLeadingZeros(number, size) {
@@ -374,3 +413,4 @@ document.getElementById("importFile").addEventListener("click", runModal.bind(nu
 document.getElementById("nextFile").addEventListener("click", runModal.bind(null, "next"));
 document.getElementById("previousFile").addEventListener("click", runModal.bind(null, "previous"));
 document.getElementById("getExportName").addEventListener("click", updatePageInfo);
+document.getElementById("test").addEventListener("click", exportFile);
