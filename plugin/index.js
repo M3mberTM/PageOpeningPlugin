@@ -107,13 +107,22 @@ async function openNextFile(reverse) {
 
     let entry;
     if (reverse) {
-        currIndex--;
-        currPageNum--;
-        entry = workFolder.get(Array.from(workFolder.keys())[currIndex]);
+        if (currIndex-1 >= 0) {
+            currIndex--;
+            currPageNum--;
+            entry = workFolder.get(Array.from(workFolder.keys())[currIndex]);
+        } else {
+            showAlert("No page before this!");
+        }
     } else {
-        currIndex++;
-        currPageNum++;
-        entry = workFolder.get(Array.from(workFolder.keys())[currIndex]);
+        if (currIndex + 1 < Array.from(workFolder.keys()).length) {
+            currIndex++;
+            currPageNum++;
+            entry = workFolder.get(Array.from(workFolder.keys())[currIndex]);
+        } else {
+            showAlert("No page after this!")
+        }
+
     }
 
     await require('photoshop').core.executeAsModal(openFile.bind(null, entry));
@@ -167,19 +176,20 @@ async function exportFile() {
         const expFileName = getExportFileName();
         const fs = require('uxp').storage.localFileSystem;
         const expFolderEntry = await pathToEntry(exportPath);
+        let entry;
         switch (fileType) {
             case 0:
-                const entry = await expFolderEntry.createFile(`${expFileName}.psd`, {overwrite: true});
+                entry = await expFolderEntry.createFile(`${expFileName}.psd`, {overwrite: true});
                 // const entry =  await fs.createEntryWithUrl(`${exportPath}\\${expFileName}.psd`);
                 await require('photoshop').core.executeAsModal(savePSD.bind(null, entry));
                 break;
             case 1:
-
-                await savePNG();
+                entry = await expFolderEntry.createFile(`${expFileName}.png`, {overwrite: true});
+                await require('photoshop').core.executeAsModal(savePNG.bind(null, entry));
                 break;
             case 2:
-
-                await saveJPG();
+                entry = await expFolderEntry.createFile(`${expFileName}.jpg`, {overwrite: true});
+                await require('photoshop').core.executeAsModal(saveJPG.bind(null, entry));
                 break;
         }
     } else {
@@ -188,15 +198,29 @@ async function exportFile() {
 }
 
 
-async function savePNG(path) {
+async function savePNG(entry) {
+    console.log("Saving as png");
     const app = require('photoshop').app;
-    const document = app.activeDocument;
+    const doc = app.activeDocument;
+    try {
+        await doc.saveAs.png(entry);
+
+    } catch (e) {
+        console.log(e);
+    }
 
 }
 
-async function saveJPG(path) {
+async function saveJPG(entry) {
+    console.log("Saving as jpg");
     const app = require('photoshop').app;
-    const document = app.activeDocument;
+    const doc = app.activeDocument;
+    try {
+        await doc.saveAs.jpg(entry, {quality: 12}, true);
+
+    } catch (e) {
+        console.log(e);
+    }
 }
 
 async function savePSD(entry) {
