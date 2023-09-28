@@ -44,5 +44,3 @@ Credits for those features (Your name is mentioned as well as the suggestion).
 *All of these are on discord!*
 
 - m3mber - Coding, design, Testing
-- naruhinadis - Testing
-
