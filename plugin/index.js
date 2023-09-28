@@ -6,9 +6,7 @@ let workFolder = new Map();
 let currIndex = 0;
 let currPageNum = -1;
 
-//TODO check whether the files can be opened in PS
-
-async function selectFolder() {
+async function selectFolder() { //selecting a folder
     console.log("Selecting a folder")
 
     const fslocal = window.require("uxp").storage.localFileSystem;
@@ -55,7 +53,13 @@ async function selectFile() {
 
 }
 
-async function updatePageInfo() {
+async function updatePageInfo() { //gets the current page information from all the data given
+    const manualPageNum = document.getElementById("manualPageNum").value;
+    if (manualPageNum != "") {
+        console.log(`Manual change of number to ${manualPageNum}`)
+        currPageNum = manualPageNum;
+        document.getElementById("manualPageNum").value = null;
+    }
     document.getElementById("pageNum").innerHTML = `Page num: ${currPageNum}`;
     if (document.getElementById("seriesName").value !== "" && document.getElementById("chapterNum").value != "") {
         document.getElementById("exportName").innerHTML = `Export name: ${getExportFileName()}`;
@@ -64,7 +68,7 @@ async function updatePageInfo() {
     }
 }
 
-async function getPageNum() {
+async function getPageNum() { //tries to get the current page number based on the differences between file names
     console.log("getPageNum")
     const currFile = Array.from(workFolder.keys())[currIndex];
     const nextFile = Array.from(workFolder.keys())[currIndex + 1];
@@ -107,7 +111,7 @@ async function openNextFile(reverse) {
 
     let entry;
     if (reverse) {
-        if (currIndex-1 >= 0) {
+        if (currIndex - 1 >= 0) {
             currIndex--;
             currPageNum--;
             entry = workFolder.get(Array.from(workFolder.keys())[currIndex]);
@@ -126,7 +130,12 @@ async function openNextFile(reverse) {
     }
 
     await require('photoshop').core.executeAsModal(openFile.bind(null, entry));
-    closeFile(doc);
+    try {
+        closeFile(doc);
+    } catch (e) {
+        await showAlert("Error occurred while trying to close the file!");
+        await showAlert(e);
+    }
 
 
 }
@@ -152,19 +161,21 @@ async function openFile(entry) {
             console.log("the file is not an entry")
         }
     } catch (e) {
-        console.log(e);
+        await showAlert("An error occurred when opening a file!")
+        await showAlert(e);
     }
 }
 
 
-async function pathToEntry(filePath) {
+async function pathToEntry(filePath) { //converts the filepath to an entry which is then used to open up the files
     const fs = require('uxp').storage.localFileSystem;
     try {
         const file = await fs.getEntryWithUrl(filePath);
         return file;
     } catch (e) {
+        await showAlert(`An error occurred while making the entry! ${filePath}`);
         await showAlert(e);
-        await showAlert(filePath);
+
     }
 }
 
@@ -177,20 +188,24 @@ async function exportFile() {
         const fs = require('uxp').storage.localFileSystem;
         const expFolderEntry = await pathToEntry(exportPath);
         let entry;
-        switch (fileType) {
-            case 0:
-                entry = await expFolderEntry.createFile(`${expFileName}.psd`, {overwrite: true});
-                // const entry =  await fs.createEntryWithUrl(`${exportPath}\\${expFileName}.psd`);
-                await require('photoshop').core.executeAsModal(savePSD.bind(null, entry));
-                break;
-            case 1:
-                entry = await expFolderEntry.createFile(`${expFileName}.png`, {overwrite: true});
-                await require('photoshop').core.executeAsModal(savePNG.bind(null, entry));
-                break;
-            case 2:
-                entry = await expFolderEntry.createFile(`${expFileName}.jpg`, {overwrite: true});
-                await require('photoshop').core.executeAsModal(saveJPG.bind(null, entry));
-                break;
+        try {
+            switch (fileType) {
+                case 0:
+                    entry = await expFolderEntry.createFile(`${expFileName}.psd`, {overwrite: true});
+                    await require('photoshop').core.executeAsModal(savePSD.bind(null, entry));
+                    break;
+                case 1:
+                    entry = await expFolderEntry.createFile(`${expFileName}.png`, {overwrite: true});
+                    await require('photoshop').core.executeAsModal(savePNG.bind(null, entry));
+                    break;
+                case 2:
+                    entry = await expFolderEntry.createFile(`${expFileName}.jpg`, {overwrite: true});
+                    await require('photoshop').core.executeAsModal(saveJPG.bind(null, entry));
+                    break;
+            }
+        } catch (e) {
+            await showAlert("An error occurred while exporting!");
+            await showAlert(e);
         }
     } else {
         await showAlert("No series name/chapter number/file type given!");
@@ -279,7 +294,6 @@ function getExportFileName() {
 }
 
 
-//TODO adding leading zeroes to the exported document
 function addLeadingZeros(number, size) {
     let text = "0000000000000" + number;
     return text.substring(text.length - size - 1);
@@ -287,7 +301,6 @@ function addLeadingZeros(number, size) {
 
 function closeFile(document) {
     console.log("closeFile");
-    const app = require('photoshop').app;
     try {
         document.close();
     } catch (e) {
@@ -300,9 +313,19 @@ async function runModal(command) {
         if (command == "start") {
             await require('photoshop').core.executeAsModal(selectFile);
         } else if (command == "next") {
-            await require('photoshop').core.executeAsModal(openNextFile.bind(null, false));
+            if (currentFilePath != "" && currentFilePath != null) {
+                await require('photoshop').core.executeAsModal(openNextFile.bind(null, false));
+            } else {
+                showAlert("You have not selected any starting file");
+            }
+
         } else if (command == "previous") {
-            await require('photoshop').core.executeAsModal(openNextFile.bind(null, true));
+            if (currentFilePath != "" && currentFilePath != null) {
+                await require('photoshop').core.executeAsModal(openNextFile.bind(null, true));
+            } else {
+                showAlert("You have not selected any starting file");
+            }
+
         } else {
             console.log("None of the commands were fulfilled")
         }
@@ -320,13 +343,12 @@ async function showAlert(message) {
     await app.showAlert(message);
 }
 
-async function readFolder(folderPath) {
+async function readFolder(folderPath) { //gets all the files in the folder with the starting file for easy switching between pages
     console.log("reading folder!")
     const fs = require('fs');
     try {
         let paths = fs.readdirSync(`file:\\${folderPath}`);
         let fileNames = []
-        const extensionPattern = /(?<=\.)\w+/;
         for (let i = 0; i < paths.length; i++) {
             fileNames[i] = paths[i];
         }
@@ -340,11 +362,12 @@ async function readFolder(folderPath) {
 
 
     } catch (e) {
-        console.log(e);
+        await showAlert("Error occurred while trying to get the folder files!");
+        await showAlert(e);
     }
 }
 
-function sorting(a, b) {
+function sorting(a, b) { //sorting function
     const smallerLength = a.length < b.length ? a.length : b.length;
     const chosenLength = a.length < b.length ? a : b;
     let offsetA = 0;
@@ -359,7 +382,8 @@ function sorting(a, b) {
 
         let aIsNumber = isNumber(currA);
         let bIsNumber = isNumber(currB);
-
+        //begins with comparing the same symbols
+        //different algorithm for numbers and letters
         if (aIsNumber && bIsNumber) {
             let numberResult = numberComparison(a.substring(i), b.substring(i));
             if (numberResult[0] != 0) {
@@ -437,4 +461,3 @@ document.getElementById("importFile").addEventListener("click", runModal.bind(nu
 document.getElementById("nextFile").addEventListener("click", runModal.bind(null, "next"));
 document.getElementById("previousFile").addEventListener("click", runModal.bind(null, "previous"));
 document.getElementById("getExportName").addEventListener("click", updatePageInfo);
-document.getElementById("test").addEventListener("click", exportFile);

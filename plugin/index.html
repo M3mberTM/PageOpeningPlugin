@@ -36,12 +36,13 @@
     .marginalize {
         margin-top: 10px;
     }
+
     .stackUnderneath {
         display: block;
         margin-top: 10px;
     }
 
-    .stack{
+    .stack {
         display: block;
     }
 </style>
@@ -74,11 +75,11 @@
     <sp-textfield placeholder="6" type="number" size="S" id="chapterNum">
         <sp-label isrequired="true" slot="label">Chapter Num:</sp-label>
     </sp-textfield>
-    <sp-textfield placeholder="-"  size="S" id="spacesExchange" quiet>
+    <sp-textfield placeholder="-" size="S" id="spacesExchange" quiet>
         <sp-label slot="label">Exchange spaces for:</sp-label>
     </sp-textfield>
-<!--    change this to sp-picker instead as dropdown is deprecated-->
-    <sp-dropdown class = "marginalize" placeholder="Select file type" size="m" id="fileDropdown">
+    <!--    change this to sp-picker instead as dropdown is deprecated-->
+    <sp-dropdown class="marginalize" placeholder="Select file type" size="m" id="fileDropdown">
         <sp-menu slot="options">
             <sp-menu-item>.psd</sp-menu-item>
             <sp-menu-item>.png</sp-menu-item>
@@ -89,18 +90,19 @@
     <sp-checkbox id="leadingZeros">Input leading zeros</sp-checkbox>
     <div id="leadingZerosGroup" class="hidden">
         <div class="stack">
-        <sp-checkbox id="volumeLeadingRadio">to Volume</sp-checkbox>
-        <sp-textfield placeholder="Put number of leading zeroes" type="number" id="volumeLeading"
-                      class="radioTextfield hidden"></sp-textfield></div>
-        <div class="stack">
-        <sp-checkbox id="chapterLeadingGroup">to Chapter</sp-checkbox>
-        <sp-textfield placeholder="Put number of leading zeroes" type="number" id="chapterLeading"
-                      class="radioTextfield hidden"></sp-textfield>
+            <sp-checkbox id="volumeLeadingRadio">to Volume</sp-checkbox>
+            <sp-textfield placeholder="Put number of leading zeroes" type="number" id="volumeLeading"
+                          class="radioTextfield hidden"></sp-textfield>
         </div>
         <div class="stack">
-        <sp-checkbox id="pageLeadingGroup">to Page Num</sp-checkbox>
-        <sp-textfield placeholder="Put number of leading zeroes" type="number" id="pageLeading"
-                      class="radioTextfield hidden"></sp-textfield>
+            <sp-checkbox id="chapterLeadingGroup">to Chapter</sp-checkbox>
+            <sp-textfield placeholder="Put number of leading zeroes" type="number" id="chapterLeading"
+                          class="radioTextfield hidden"></sp-textfield>
+        </div>
+        <div class="stack">
+            <sp-checkbox id="pageLeadingGroup">to Page Num</sp-checkbox>
+            <sp-textfield placeholder="Put number of leading zeroes" type="number" id="pageLeading"
+                          class="radioTextfield hidden"></sp-textfield>
         </div>
     </div>
 </div>
@@ -108,14 +110,16 @@
 <!-- Third panel content for the plugin-->
 <div id="opening" class="paddingClass">
     <sp-heading size="S">Open pages</sp-heading>
-    <sp-button class ="stackUnderneath" id="previousFile" size="l">Previous</sp-button>
-    <sp-button class ="stackUnderneath" id="nextFile" size="l">Next</sp-button>
+    <sp-button class="stackUnderneath" id="previousFile" size="l">Previous</sp-button>
+    <sp-button class="stackUnderneath" id="nextFile" size="l">Next</sp-button>
     <sp-button class="stackUnderneath" size="l" id="getExportName">Update page info</sp-button>
-    <sp-button class ="stackUnderneath" id="test" size="l">Test</sp-button>
+    <sp-textfield placeholder="5" size="S" id="manualPageNum" type="number" quiet>
+        <sp-label slot="label">Manual page number</sp-label>
+    </sp-textfield>
     <sp-divider size="large" class="marginalize"></sp-divider>
     <sp-heading size="s">Info about the file:</sp-heading>
     <sp-label size="l" class="stack" id="pageNum">Page num:</sp-label>
-    <sp-label size="l" class="stack" id="exportName">Export name: </sp-label>
+    <sp-label size="l" class="stack" id="exportName">Export name:</sp-label>
     <sp-link href="https://github.com/M3mberTM/PageOpeningPlugin/blob/master/HELP.md" class="stack">Need help?</sp-link>
 </div>
 

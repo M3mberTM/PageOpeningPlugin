@@ -52,9 +52,14 @@ as the page name, as well as the current page number.
 
 The folder from where you get your pages is selected automatically upon you opening the first page. To go to the
 next/previous page, navigate to the last panel: "**Opening pages**". On this panel, click either next or previous to get
-the next/previous page. 
+the next/previous page.
 
 ### File exporting
+
+The exporting of the files comes down to two panels: first and third. First, you need to select your export folder where
+you want all your files to end up. To access this feature, you need to click the checkbox on the Export part of the
+first panel. Afterward, you need to put some of the required information on the second panel in order for the plugin to
+actually export your files. The file is automatically exported upon opening the next or previous page.
 
 ## Troubleshooting
 
