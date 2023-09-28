@@ -18,7 +18,7 @@ by one. Therefore, you only have one file opened at once.
 
 Make your way to the releases on the GitHub page. You will see the current version of the plugin release. Steps:
 
-1. Download it
+1. Download the .ccx file
 2. Unzip the file (preferably using 7zip)
 3. Find where your photoshop is located on your PC (usually in C:\Program Files\Adobe\Adobe Photoshop\Plug-ins)
 4. Open the plugin folder
